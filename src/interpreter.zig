@@ -1,4 +1,5 @@
 const std = @import("std");
+const util = @import("./util.zig");
 
 const mem_size = 30000;
 var memory = [_]u8{0} ** mem_size;
@@ -37,7 +38,7 @@ fn bf(program: []u8, comptime input: anytype, comptime output: anytype) !void {
             },
             '[' => {
                 if (memory[index] == 0) {
-                    if (findPair(program[pi..program.len], '[', ']')) |bi| {
+                    if (util.findPair(program[pi..program.len], '[', ']')) |bi| {
                         pi = pi + bi;
                     }
                 } else {
@@ -48,7 +49,7 @@ fn bf(program: []u8, comptime input: anytype, comptime output: anytype) !void {
                 if (memory[index] != 0) {
                     var rprogram = program[0..(pi + 1)];
                     std.mem.reverse(u8, rprogram);
-                    if (findPair(rprogram, ']', '[')) |bi| {
+                    if (util.findPair(rprogram, ']', '[')) |bi| {
                         pi = pi - bi;
                     }
                     std.mem.reverse(u8, rprogram);
@@ -74,38 +75,6 @@ fn bf(program: []u8, comptime input: anytype, comptime output: anytype) !void {
             },
         }
     }
-}
-/// returns distance index from 0 of program`
-fn findPair(program: []const u8, fst: u8, snd: u8) ?usize {
-    var bracket_count: usize = 0;
-    for (program) |ftoken, i| {
-        if (ftoken == fst) {
-            bracket_count += 1;
-        } else if (ftoken == snd) {
-            bracket_count -= 1;
-            if (bracket_count == 0) {
-                return i;
-            }
-        }
-    }
-    return null;
-}
-
-test "findPair basecase" {
-    const bracket = "[[[[]]]]]]";
-    std.testing.expect(7 == findPair(bracket, '[', ']').?);
-
-    const bracket1 = "[[][][][]]";
-    std.testing.expect(9 == findPair(bracket1, '[', ']').?);
-
-    const bracket2 = "[[[[[]]";
-    std.testing.expect(null == findPair(bracket2, '[', ']'));
-
-    const bracket3 = "]][[";
-    std.testing.expect(3 == findPair(bracket3, ']', '[').?);
-
-    const bracket4 = "[.+]";
-    std.testing.expect(3 == findPair(bracket4, '[', ']').?);
 }
 
 fn getInput(list: *std.ArrayList(u8), comptime input: anytype) bool {

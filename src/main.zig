@@ -11,5 +11,11 @@ pub fn main() !void {
     defer {
         const leaked = gpa.deinit();
     }
-    try interpreter.interperate(&gpa.allocator, stdin, stdout);
+
+    if (std.os.argv.len == 2) {
+        try stdout.print("compile {s} into something\n", .{std.mem.spanZ(args[1])});
+        try compile.compiler(std.mem.spanZ(args[1]), &gpa.allocator);
+    } else {
+        try interpreter.interperate(&gpa.allocator, stdin, stdout);
+    }
 }
